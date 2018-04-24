@@ -8,6 +8,11 @@
 
 class ConstantContact_Admin_Test extends WP_UnitTestCase {
 
+	/**
+	 * Debatable how much of this class we need to test. It's primarily just filtering to display extra data and
+	 * setting up options pages.
+	 */
+
 	function setup() {
 		parent::setup();
 	}
