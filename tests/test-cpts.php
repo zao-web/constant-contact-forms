@@ -8,12 +8,12 @@
 
 class ConstantContact_CPTS_Test extends WP_UnitTestCase {
 
-	function test_class_exists() {
-		$this->assertTrue( class_exists( 'ConstantContact_CPTS' ) );
+	function setup() {
+		parent::setup();
 	}
 
-	function test_class_access() {
-		$this->assertTrue( constant_contact()->cpts instanceof ConstantContact_CPTS );
+	function test_class_exists() {
+		$this->assertTrue( class_exists( 'ConstantContact_CPTS' ) );
 	}
 
 	function test_post_types_exist() {
@@ -24,5 +24,9 @@ class ConstantContact_CPTS_Test extends WP_UnitTestCase {
 
 		// @todo Find a way to connect and re-run test.
 		#$this->assertTrue( post_type_exists( 'ctct_list' ) );
+	}
+
+	function teardown() {
+		parent::teardown();
 	}
 }

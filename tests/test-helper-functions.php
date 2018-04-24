@@ -8,6 +8,10 @@
 
 class ConstantContact_Helper_Functions_Test extends WP_UnitTestCase {
 
+	function setup() {
+		parent::setup();
+	}
+
 	function test_constant_contact_is_connected() {
 		$this->markTestIncomplete();
 		/*
@@ -126,5 +130,9 @@ class ConstantContact_Helper_Functions_Test extends WP_UnitTestCase {
 		$this->assertTrue(
 			constant_contact_debugging_enabled()
 		);
+	}
+
+	function teardown() {
+		parent::teardown();
 	}
 }

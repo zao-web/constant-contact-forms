@@ -8,16 +8,15 @@
 
 class ConstantContact_Display_Test extends WP_UnitTestCase {
 
+	function setup() {
+		parent::setup();
+	}
+
 	function test_class_exists() {
 		$this->assertTrue( class_exists( 'ConstantContact_Display' ) );
 	}
 
-	function test_class_access() {
-		$this->assertTrue( constant_contact()->display instanceof ConstantContact_Display );
-	}
-
-	function test_sample() {
-		// replace this with some actual testing code
-		$this->assertTrue( true );
+	function teardown() {
+		parent::teardown();
 	}
 }
