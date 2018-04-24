@@ -10,6 +10,7 @@ class ConstantContact_CPTS_Test extends WP_UnitTestCase {
 
 	function setup() {
 		parent::setup();
+		$this->cpts = new ConstantContact_CPTS( constant_contact() );
 	}
 
 	function test_class_exists() {
