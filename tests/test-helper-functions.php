@@ -65,17 +65,35 @@ class ConstantContact_Helper_Functions_Test extends WP_UnitTestCase {
 	}
 
 	function test_constant_contact_clean_url() {
-		/*
-		Pass in non-string, verify non-string returned untouched.
+		$dirty = constant_contact_clean_url( [] );
 
-		Pass in potentially invalid url, see what esc_url expects/checks for for invalid, confirm clean result
-		pass in valid url and confirm match returned.
+		$this->assertTrue( is_array( $dirty ) );
 
-		How to set is_ssl()?
+		$cleanurl = constant_contact_clean_url( 'www.constantcontact.com' );
+		$this->assertEquals(
+			'http://www.constantcontact.com',
+			$cleanurl
+		);
 
-		set ssl to true, pass in http://, confirm https:// result
+		$cleanurl1 = constant_contact_clean_url( 'constantcontact.com' );
+		$this->assertEquals(
+			'http://constantcontact.com',
+			$cleanurl1
+		);
 
-		*/
+		$cleanurl2 = constant_contact_clean_url( 'https://www.constantcontact.com' );
+		$this->assertEquals(
+			'https://www.constantcontact.com',
+			$cleanurl2
+		);
+
+		$cleanurl3 = constant_contact_clean_url( 'http://www.constantcontact.com' );
+		$this->assertEquals(
+			'http://www.constantcontact.com',
+			$cleanurl3
+		);
+
+		// @todo Test is_ssl usage somehow. Pass in non-https version of domain, receive https version. Need to remember that is_ssl() is for the WP install, and not any ole url.
 	}
 
 	function test_constant_contact_debugging_enabled() {
