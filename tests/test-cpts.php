@@ -18,13 +18,17 @@ class ConstantContact_CPTS_Test extends WP_UnitTestCase {
 	}
 
 	function test_post_types_exist() {
+		$this->markTestIncomplete();
+
 		$this->assertTrue( post_type_exists( 'ctct_forms' ) );
 
 		// Test pre-connection.
-		$this->assertFalse( post_type_exists( 'ctct_list' ) );
+		$this->assertFalse( post_type_exists( 'ctct_lists' ) );
 
-		// @todo Find a way to connect and re-run test.
-		#$this->assertTrue( post_type_exists( 'ctct_list' ) );
+		update_option( 'ctct_token', 'insignificant string' );
+
+		$this->cpts->lists_post_type();
+		$this->assertTrue( post_type_exists( 'ctct_lists' ) );
 	}
 
 	function teardown() {
