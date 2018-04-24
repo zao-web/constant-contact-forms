@@ -8,6 +8,10 @@
 
 class ConstantContact_Optin_Test extends WP_UnitTestCase {
 
+	function setup() {
+		$this->optin = new ConstantContact_Optin( constant_contact() );
+	}
+
 	function test_class_exists() {
 		$this->assertTrue( class_exists( 'ConstantContact_Optin' ) );
 	}
