@@ -37,10 +37,10 @@ class ConstantContact_Helper_Functions_Test extends WP_UnitTestCase {
 	}
 
 	function test_constant_contact_display_shortcode() {
-		/*
-			Check results with no form ID passed in
-			Pass in whatever ID value wanted, confirm shortcode is formatted as expected.
-		*/
+		$this->assertEquals(
+			'[ctct form="1"]',
+			constant_contact_display_shortcode(1)
+		);
 	}
 
 	function test_constant_contact_has_redirect_uri() {
