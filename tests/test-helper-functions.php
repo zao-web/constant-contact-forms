@@ -97,18 +97,34 @@ class ConstantContact_Helper_Functions_Test extends WP_UnitTestCase {
 	}
 
 	function test_constant_contact_debugging_enabled() {
-		/*
-		Test default state.
+		// Default state.
+		$this->assertFalse(
+			constant_contact_debugging_enabled()
+		);
 
-		Set ctct_get_settings_option( '_ctct_logging' ) setting to 'on'
-		test result.
+		cmb2_update_option( constant_contact()->settings->key, '_ctct_logging', 'on' );
 
-		unset option
-		define CONSTANT_CONTACT_DEBUG_MAIL to true
-		test result.
+		// Should be true as we've set the option
+		$this->assertTrue(
+			constant_contact_debugging_enabled()
+		);
 
-		re-set logging option
-		test result
-		*/
+		// Should be false because we unset the setting again.
+		cmb2_update_option( constant_contact()->settings->key, '_ctct_logging', '' );
+		$this->assertFalse(
+			constant_contact_debugging_enabled()
+		);
+
+		// Our legacy constant is set, so we should have debugging enabled.
+		define( 'CONSTANT_CONTACT_DEBUG_MAIL', true );
+		$this->assertTrue(
+			constant_contact_debugging_enabled()
+		);
+
+		// We should have our constant set AND our debugging mode enabled.
+		cmb2_update_option( constant_contact()->settings->key, '_ctct_logging', 'on' );
+		$this->assertTrue(
+			constant_contact_debugging_enabled()
+		);
 	}
 }
