@@ -9,6 +9,7 @@
 class ConstantContact_Helper_Functions_Test extends WP_UnitTestCase {
 
 	function test_constant_contact_is_connected() {
+		$this->markTestIncomplete();
 		/*
 			test initial state with no connection made
 			make connection and set values that we use to test if is connected
@@ -17,6 +18,7 @@ class ConstantContact_Helper_Functions_Test extends WP_UnitTestCase {
 	}
 
 	function test_constant_contact_is_not_connected() {
+		$this->markTestIncomplete();
 		/*
 			similar to constant_contact_is_not_connected() test
 			confirm not connect
@@ -26,6 +28,7 @@ class ConstantContact_Helper_Functions_Test extends WP_UnitTestCase {
 	}
 
 	function test_constant_contact_get_forms() {
+		$this->markTestIncomplete();
 		/*
 			Start with no forms created, confirm empty results
 			create some forms.
@@ -51,6 +54,7 @@ class ConstantContact_Helper_Functions_Test extends WP_UnitTestCase {
 	}
 
 	function test_constant_contact_check_timestamps() {
+		$this->markTestIncomplete();
 		/*
 		First parameter is current evaluated status
 		second parameter is an array with a specific key.
