@@ -12,6 +12,10 @@ class ConstantContact_Core_Test extends WP_UnitTestCase {
 		parent::setup();
 	}
 
+	function test_class_exists() {
+		$this->assertTrue( class_exists( 'Constant_Contact' ) );
+	}
+
 	function teardown() {
 		parent::teardown();
 	}
