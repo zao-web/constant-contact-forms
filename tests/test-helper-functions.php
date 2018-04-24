@@ -44,13 +44,12 @@ class ConstantContact_Helper_Functions_Test extends WP_UnitTestCase {
 	}
 
 	function test_constant_contact_has_redirect_uri() {
-		/*
-		Create form
-		add invalid url post meta
-		test return value
-		overwrite invalid url post meta with valid url post meta
-		test return value
-		*/
+		$ctctform = $this->factory->post->create(['post_title' => 'Test Form Has Redirect URI']);
+
+		$this->assertFalse( constant_contact_has_redirect_uri( $ctctform ) );
+
+		update_post_meta( $ctctform, '_ctct_redirect_uri', 'https://www.constantcontact.com' );
+		$this->assertTrue( constant_contact_has_redirect_uri( $ctctform ) );
 	}
 
 	function test_constant_contact_check_timestamps() {
