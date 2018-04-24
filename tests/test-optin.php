@@ -22,9 +22,22 @@ class ConstantContact_Optin_Test extends WP_UnitTestCase {
 	}
 
 	function test_can_track() {
-		$this->markTestIncomplete();
-		$optin = constant_contact()->optin;
-		// replace this with some actual testing code
-		$this->assertFalse( $optin->can_track() );
+		// Initial state
+		$this->assertFalse( $this->optin->can_track(), 'No options set.' );
+
+		// Data tracking added
+		cmb2_update_option( constant_contact()->settings->key, '_ctct_data_tracking', 'on' );
+		$this->assertFalse( $this->optin->can_track(), 'Data tracking, but no privacy policy.' );
+
+		// Privacy policy set but not string true
+		update_option( 'ctct_privacy_policy_status', 'false' );
+		$this->assertFalse( $this->optin->can_track(), 'Privacy policy not string true' );
+
+		// Privacy policy set but not string period
+		update_option( 'ctct_privacy_policy_status', [] );
+		$this->assertFalse( $this->optin->can_track(), 'Privacy policy not string' );
+
+		update_option( 'ctct_privacy_policy_status', 'true' );
+		$this->assertTrue( $this->optin->can_track() );
 	}
 }
