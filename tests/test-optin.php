@@ -9,6 +9,7 @@
 class ConstantContact_Optin_Test extends WP_UnitTestCase {
 
 	function setup() {
+		parent::setup();
 		$this->optin = new ConstantContact_Optin( constant_contact() );
 	}
 
@@ -34,5 +35,9 @@ class ConstantContact_Optin_Test extends WP_UnitTestCase {
 
 		update_option( 'ctct_privacy_policy_status', 'true' );
 		$this->assertTrue( $this->optin->can_track() );
+	}
+
+	function teardown() {
+		parent::teardown();
 	}
 }
