@@ -17,6 +17,19 @@ class ConstantContact_Optin_Test extends WP_UnitTestCase {
 		$this->assertTrue( class_exists( 'ConstantContact_Optin' ) );
 	}
 
+	function test_privacy_policy_status() {
+		$this->assertFalse( $this->optin->privacy_policy_status() );
+
+		update_option( 'ctct_privacy_policy_status', 'false' );
+		$this->assertFalse( $this->optin->privacy_policy_status() );
+
+		update_option( 'ctct_privacy_policy_status', '' );
+		$this->assertFalse( $this->optin->privacy_policy_status() );
+
+		update_option( 'ctct_privacy_policy_status', 'true' );
+		$this->assertTrue( $this->optin->privacy_policy_status() );
+
+	}
 	function test_can_track() {
 		// Initial state
 		$this->assertFalse( $this->optin->can_track(), 'No options set.' );
