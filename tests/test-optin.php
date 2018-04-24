@@ -16,11 +16,6 @@ class ConstantContact_Optin_Test extends WP_UnitTestCase {
 		$this->assertTrue( class_exists( 'ConstantContact_Optin' ) );
 	}
 
-	function test_class_access() {
-		$this->markTestIncomplete();
-		$this->assertTrue( constant_contact()->optin instanceof ConstantContact_Optin );
-	}
-
 	function test_can_track() {
 		// Initial state
 		$this->assertFalse( $this->optin->can_track(), 'No options set.' );
