@@ -16,8 +16,13 @@ class ConstantContact_CPTS_Test extends WP_UnitTestCase {
 		$this->assertTrue( constant_contact()->cpts instanceof ConstantContact_CPTS );
 	}
 
-	function test_sample() {
-		// replace this with some actual testing code
-		$this->assertTrue( true );
+	function test_post_types_exist() {
+		$this->assertTrue( post_type_exists( 'ctct_forms' ) );
+
+		// Test pre-connection.
+		$this->assertFalse( post_type_exists( 'ctct_list' ) );
+
+		// @todo Find a way to connect and re-run test.
+		#$this->assertTrue( post_type_exists( 'ctct_list' ) );
 	}
 }
