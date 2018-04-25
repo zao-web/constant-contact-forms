@@ -16,6 +16,10 @@ class ConstantContact_Connect_Test extends WP_UnitTestCase {
 		$this->assertTrue( class_exists( 'ConstantContact_Connect' ) );
 	}
 
+	function test_maybe_disconnect() {
+
+	}
+
 	function teardown() {
 		parent::teardown();
 	}
