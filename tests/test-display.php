@@ -90,12 +90,19 @@ class ConstantContact_Display_Test extends WP_UnitTestCase {
 		 */
 	}
 
+	/**
+	 * Test for return of paragraph with associated classes and passed message.
+	 */
 	function test_message() {
-		$this->markTestIncomplete();
 
-		/**
-		 * Test for return of paragraph with associated classes and passed message.
-		 */
+		$custom_class      = 'test';
+		$custom_message    = 'This is a test';
+		$generated_message = $this->display->message( $custom_class, $custom_message );
+
+		$this->assertContains( 'class="ctct-message ' . $custom_class, $generated_message,
+			'Generated message contains the custom class.' );
+		$this->assertContains( $custom_message, $generated_message,
+			'Generated message contains custom message.' );
 	}
 
 	function test_description() {
