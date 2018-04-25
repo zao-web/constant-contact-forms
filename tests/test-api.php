@@ -10,6 +10,7 @@ class ConstantContact_API_Test extends WP_UnitTestCase {
 
 	function setup() {
 		parent::setup();
+		$this->api = new ConstantContact_API( constant_contact() );
 	}
 
 	function test_class_exists() {
