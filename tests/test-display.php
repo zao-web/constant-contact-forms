@@ -131,13 +131,34 @@ class ConstantContact_Display_Test extends WP_UnitTestCase {
 	}
 
 	function test_get_submitted_value() {
-		$this->markTestIncomplete();
-		/**
-		 * If $value exists, test matching return value. It returns early
-		 * If submitted_vals param is not an array, return empty string.
-		 *
-		 * Need to try setting $_POST values as well.
-		 */
+
+		$test_value = 'test';
+
+		// If the $value (1st parameter) is not blank, we should get the same value back.
+		$this->assertEquals( $this->display->get_submitted_value( $test_value, 'test', array(), array() ),
+			$test_value,
+			'Returns false if no value is sent.'
+		);
+
+		// If $submitted_values (4th parameter) is not an array, we should get an empty string.
+		$this->assertEquals( $this->display->get_submitted_value( '', 'test', array(), 'string, not an array' ),
+			'',
+			'Return a blank string if $submitted_vals is not an array.'
+		);
+
+		$submitted_name      = 'Bart 2';
+		$_POST['first_name'] = $submitted_name; // Submitted name.
+
+		$results = $this->display->get_submitted_value( '', 'first_name',
+			array( 'name' => 'first_name' ), // Array of fields.
+			array( // Submitted values.
+				array(
+					'key'  => 'first_name',
+					'name' => 'first_name_field_name',
+				),
+			)
+		);
+		$this->assertEquals( $results, $submitted_name, 'Submitted value for first_name should be returned.' );
 	}
 
 	/**
