@@ -130,6 +130,12 @@ class ConstantContact_Display_Test extends WP_UnitTestCase {
 		 */
 	}
 
+	/**
+	 * Tests for the get_submitted_value function
+	 * 1) Submitting a $value should return the submitted $value back.
+	 * 2) If $submitted_values is not an array, we should get an empty string back.
+	 * 3) Finally, test a $_POST variable that matches a key in the fields and submitted value arrays.
+	 */
 	function test_get_submitted_value() {
 
 		$test_value = 'test';
