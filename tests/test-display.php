@@ -18,15 +18,20 @@ class ConstantContact_Display_Test extends WP_UnitTestCase {
 		$this->assertTrue( class_exists( 'ConstantContact_Display' ) );
 	}
 
+	/**
+	 * Test retrieving a form with a status of "pending" should return an empty string.
+	 */
 	function test_form_no_POST() {
-		$this->markTestIncomplete();
+		// Create a form to use with a status set to 'draft.'
+		$form_id = $this->factory->post->create( array(
+			'post_title'  => 'Test Form',
+			'post_type'   => 'ctct_forms',
+			'post_status' => 'pending',
+		) );
 
-		/**
-		 * Create form.
-		 * Set to pending review status
-		 * test empty string return
-		 * Somehow attempt to match form output
-		 */
+		$this->assertEquals( '', $this->display->form( array(), $form_id ),
+			"Getting a form with status of 'Pending Review' should return an empty string."
+		);
 	}
 
 	function test_form_with_POST() {
@@ -182,8 +187,48 @@ class ConstantContact_Display_Test extends WP_UnitTestCase {
 			'Generated message contains custom message.' );
 	}
 
+	/*
+	 * Test getting the description for a form.
+	 * 1) A logged-out user should get a description but no edit link.
+	 * 2) A logged-in editor should get a description and an edit link.
+	 */
 	function test_description() {
-		$this->markTestIncomplete();
+		// Set up a test form to retrieve.
+		$form_description = 'Test Form Description!!';
+
+		// Create a form to use.
+		$form_id = $this->factory->post->create( array(
+			'post_title' => 'Test Form',
+			'post_type'  => 'ctct_forms',
+			'meta_input' => [
+				'_ctct_description' => $form_description,
+			],
+		) );
+
+		$returned_description = $this->display->description( $form_description, $form_id );
+
+		$this->assertContains( $form_description, $returned_description,
+			'The form description should be returned for any user.'
+		);
+
+		$this->assertNotContains( 'ctct-button', $returned_description,
+			'An edit link should not be returned for a non-logged-in user.'
+		);
+
+		$author_id = $this->factory->user->create([
+			'role' => 'editor',
+		]);
+		wp_set_current_user( $author_id );
+
+		$returned_description = $this->display->description( $form_description, $form_id );
+
+		$this->assertContains( $form_description, $returned_description,
+			'The form description should be returned for any user.'
+		);
+
+		$this->assertNotContains( 'ctct-button', $returned_description,
+			'An edit link should be returned for an author.'
+		);
 
 		/**
 		 * Test return of span with class and message value.
