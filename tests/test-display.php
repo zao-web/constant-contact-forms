@@ -37,18 +37,68 @@ class ConstantContact_Display_Test extends WP_UnitTestCase {
 		 */
 	}
 
+	/**
+	 * Test the function to add a verify field.
+	 * 1) Test passing incomplete data.
+	 * 2) Test passing a bad form id.
+	 * 3) Test passing valid information.
+	 */
 	function test_add_verify_fields() {
-		$this->markTestIncomplete();
+
+		$form_data        = array();
+		$verify_key_value = 'verify_key_value';
+
 		/*
 		 * Pass in incomplete array data
 		 * Test for false
+		 */
+		$this->assertFalse(
+			$this->display->add_verify_fields( $form_data ),
+			'Calling add_verify_fields with incomplete form data should return false'
+		);
+
+		/*
 		 * Pass in array of valid data.
 		 * Force bad form_id
-		 * test for false return;
+		 * test for false return
+		 */
+		$form_data = [
+			'options' => [
+				'form_id' => 'bad_form_id',
+			],
+		];
+		$this->assertFalse(
+			$this->display->add_verify_fields( $form_data ),
+			'Calling add_verify_fields with bad form id should return false'
+		);
+
+		/*
 		 * Pass in array of valid data plus valid form_id
 		 * Set _ctct_verify_key meta value
 		 * confirm matching markup return.
 		 */
+
+		// Create a form to use.
+		$form_id = $this->factory->post->create( array(
+			'post_title' => 'Test Form',
+			'post_type'  => 'ctct_forms',
+			'meta_input' => [
+				'_ctct_verify_key' => $verify_key_value,
+			],
+		) );
+
+		$form_data = [
+			'options' => [
+				'form_id' => $form_id,
+			],
+		];
+
+		$valid_result = $this->display->add_verify_fields( $form_data );
+
+		// The returned output should contain a value equal to our set $verify_key_value.
+		$this->assertContains( 'value="' . $verify_key_value . '"', $valid_result,
+			'Returned input contains the verify key as the value.' );
+
 	}
 
 	function test_build_form_fields() {
