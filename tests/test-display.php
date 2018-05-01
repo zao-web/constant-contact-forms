@@ -226,7 +226,7 @@ class ConstantContact_Display_Test extends WP_UnitTestCase {
 			'The form description should be returned for any user.'
 		);
 
-		$this->assertNotContains( 'ctct-button', $returned_description,
+		$this->assertContains( 'ctct-button', $returned_description,
 			'An edit link should be returned for an author.'
 		);
 
