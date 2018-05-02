@@ -108,14 +108,6 @@ class ConstantContact_Display_Test extends WP_UnitTestCase {
 
 	function test_build_form_fields() {
 
-		// Pass in null $form_data.
-		$form_data  = array();
-		$old_values = array();
-		$req_errors = array();
-
-		$result = $this->display->build_form_fields( $form_data, $old_values, $req_errors );
-		wp_die( $result );
-
 		$this->markTestIncomplete();
 		/*
 		 * dataprovider!
