@@ -85,16 +85,24 @@ class ConstantContact_Helper_Functions_Test extends WP_UnitTestCase {
 		$this->assertTrue( constant_contact_has_redirect_uri( $ctctform ) );
 	}
 
+	/**
+	 * This test will verify the timestamp checker.
+	 * Time over a minute in the future triggers a 'true' for 'maybe_spam.'
+	 * Time a minute ago should trigger a 'false' for 'maybe_spam.'
+	 */
 	function test_constant_contact_check_timestamps() {
-		$this->markTestIncomplete();
-		/*
-		First parameter is current evaluated status
-		second parameter is an array with a specific key.
 
-		Grab current time, subtract 60 seconds from timestamp, pass in as 2nd param
-		grab fresh current time, add 60 seconds to timestamp, pass in as 2nd param
+		$data['ctct_time'] = strtotime( '-60 seconds' );
+		$this->assertFalse(
+			constant_contact_check_timestamps( false, $data ),
+			'Time one minute ago should not trigger any warnings.'
+		);
 
-		*/
+		$data['ctct_time'] = strtotime( '+60 seconds' );
+		$this->assertTrue(
+			constant_contact_check_timestamps( false, $data ),
+			'Time in the future might be spam.'
+		);
 	}
 
 	function test_constant_contact_clean_url() {
