@@ -62,6 +62,20 @@ class ConstantContact_Helper_Functions_Test extends WP_UnitTestCase {
 		);
 	}
 
+	/**
+	 * Test the helper function, ctct_has_forms, which returns true if there are forms and false if there are none.
+	 */
+	function test_ctct_has_forms() {
+		$this->assertFalse( ctct_has_forms(), 'We have no forms, so ctct_has_forms() should be false.' );
+
+		// Create a test form.
+		$this->factory->post->create( array(
+			'post_type' => 'ctct_forms',
+		) );
+
+		$this->assertTrue( ctct_has_forms(), 'We have a form, so ctct_has_forms() should be true.' );
+	}
+
 	function test_constant_contact_has_redirect_uri() {
 		$ctctform = $this->factory->post->create(['post_title' => 'Test Form Has Redirect URI']);
 
