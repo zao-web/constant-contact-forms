@@ -31,13 +31,28 @@ class ConstantContact_Helper_Functions_Test extends WP_UnitTestCase {
 		*/
 	}
 
+	/**
+	 * Test the function that retrieves contact forms by getting an empty set then
+	 * creating some forms and getting them back.
+	 */
 	function test_constant_contact_get_forms() {
-		$this->markTestIncomplete();
-		/*
-			Start with no forms created, confirm empty results
-			create some forms.
-			confirm found results.
-		*/
+
+		// Start with no forms created, confirm empty results.
+		$forms = constant_contact_get_forms();
+		$this->assertEmpty( $forms, 'There should be nothing returned for forms.' );
+
+		// Create some forms.
+		$this->factory->post->create_many( 5, array(
+			'post_type'  => 'ctct_forms',
+			'meta_input' => [
+				'_ctct_description' => 'Test description',
+			],
+		) );
+
+		// Confirm found results.
+		$forms = constant_contact_get_forms();
+
+		$this->assertCount( 5, $forms, 'We should get back 5 forms that we just created.' );
 	}
 
 	function test_constant_contact_display_shortcode() {
