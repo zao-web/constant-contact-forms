@@ -92,13 +92,13 @@ class ConstantContact_Helper_Functions_Test extends WP_UnitTestCase {
 	 */
 	function test_constant_contact_check_timestamps() {
 
-		$data['ctct_time'] = strtotime( '-60 seconds' );
+		$data['ctct_time'] = current_time( 'timestamp' ) - 60;
 		$this->assertFalse(
 			constant_contact_check_timestamps( false, $data ),
 			'Time one minute ago should not trigger any warnings.'
 		);
 
-		$data['ctct_time'] = strtotime( '+60 seconds' );
+		$data['ctct_time'] = current_time( 'timestamp' ) + 60;
 		$this->assertTrue(
 			constant_contact_check_timestamps( false, $data ),
 			'Time in the future might be spam.'
