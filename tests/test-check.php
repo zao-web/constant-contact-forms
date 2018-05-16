@@ -92,6 +92,31 @@ class ConstantContact_Check_Test extends WP_UnitTestCase {
 		$this->assertContains( 'WDS_Shortcodes', $response, 'Check includes WDS_Shortcodes.' );
 	}
 
+	/**
+	 * Test the exists_text method.
+	 * 1) Run a test for a function that should exist.
+	 * 2) Run a test for a function that should not exist.
+	 * 3) Run a test for a class that should exist.
+	 * 4) Run a test for a class that should not exist.
+	 * 5) Run a test for arbitrary text with no text type passed.
+	 */
+	function test_exists_text() {
+		$function_exists = $this->check->exists_text( 'constant_contact_is_not_connected', 'f' );
+		$this->assertEquals( $function_exists, '✅', 'Check if constant_contact_is_not_connected function exists.' );
+
+		$function_exists = $this->check->exists_text( 'constant_contact_is_not_connected1234', 'f' );
+		$this->assertEquals( $function_exists, '🚫', 'Check if constant_contact_is_not_connected1234 function exists.' );
+
+		$class_exists = $this->check->exists_text( 'ConstantContact_Check', 'c' );
+		$this->assertEquals( $class_exists, '✅', 'Check if ConstantContact_Check class exists.' );
+
+		$class_exists = $this->check->exists_text( 'ConstantContact_Check1234', 'c' );
+		$this->assertEquals( $class_exists, '🚫', 'Check if ConstantContact_Check1234 class exists.' );
+
+		$text_exists = $this->check->exists_text( 'Any text', '' );
+		$this->assertEquals( $text_exists, '✅', 'Check if arbitrary text (not function or class) exists.' );
+	}
+
 	function teardown() {
 		parent::teardown();
 	}
