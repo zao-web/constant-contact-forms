@@ -117,6 +117,18 @@ class ConstantContact_Check_Test extends WP_UnitTestCase {
 		$this->assertEquals( $text_exists, '✅', 'Check if arbitrary text (not function or class) exists.' );
 	}
 
+	/**
+	 * Test the message returned when cron_spawn is called with the DISABLE_WP_CRON constant set.
+	 * TODO: Is there any way to set other constants? It is returned when one is set and it seems to already be set so it will always return on the first item.
+	 */
+	function test_cron_spawn() {
+		if ( ! defined( 'DISABLE_WP_CRON' ) ) {
+			define( 'DISABLE_WP_CRON', true );
+		}
+		$this->assertContains( 'The DISABLE_WP_CRON constant is set to true',
+			$this->check->cron_spawn(), 'Check returned string when DISABLE_WP_CRON is set.' );
+	}
+
 	function teardown() {
 		parent::teardown();
 	}
