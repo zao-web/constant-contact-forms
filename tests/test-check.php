@@ -63,6 +63,20 @@ class ConstantContact_Check_Test extends WP_UnitTestCase {
 		$this->assertContains( 'Cron Check', $result, 'Debug output should be returned when criteria met.' );
 	}
 
+	/**
+	 * Test the response from the test_get_checks_to_make function.
+	 */
+	function test_get_checks_to_make() {
+		$response = $this->check->get_checks_to_make();
+
+		$this->assertArrayHasKey( 'functions', $response, 'Main array contains functions key.' );
+		$this->assertContains( 'openssl_encrypt', $response['functions'], 'Functions array contains openssl_encrypt.' );
+		$this->assertContains( 'openssl_decrypt', $response['functions'], 'Functions array contains openssl_decrypt.' );
+		$this->assertArrayHasKey( 'classes', $response, 'Main array contains classes key.' );
+		$this->assertContains( 'CMB2', $response['classes'], 'Classes array contains CMB2.' );
+		$this->assertContains( 'WDS_Shortcodes', $response['classes'], 'Classes array contains WDS_Shortcodes.' );
+	}
+
 	function teardown() {
 		parent::teardown();
 	}
