@@ -77,6 +77,21 @@ class ConstantContact_Check_Test extends WP_UnitTestCase {
 		$this->assertContains( 'WDS_Shortcodes', $response['classes'], 'Classes array contains WDS_Shortcodes.' );
 	}
 
+	/**
+	 * Test the response of the server checks.
+	 */
+	function test_display_server_checks() {
+		ob_start();
+		$this->check->display_server_checks();
+		$response = ob_get_clean();
+
+		$this->assertContains( '<table class="ctct-server-check">', $response, 'Output includes table markup.' );
+		$this->assertContains( 'openssl_encrypt', $response, 'Check includes openssl_encrypt.' );
+		$this->assertContains( 'openssl_decrypt', $response, 'Check includes openssl_decrypt.' );
+		$this->assertContains( 'CMB2', $response, 'Check includes CMB2.' );
+		$this->assertContains( 'WDS_Shortcodes', $response, 'Check includes WDS_Shortcodes.' );
+	}
+
 	function teardown() {
 		parent::teardown();
 	}
