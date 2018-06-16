@@ -185,10 +185,10 @@ class ConstantContact_Mail {
 			// Doing an else to preserve back compat. "value" key won't exist in $values['ctct-opt-in'] if single list.
 			foreach( $values['ctct-opt-in'] as $list ) {
 				// Make sure that our list is a top level.
-				$args['list'] = sanitize_text_field( $values['ctct-opt-in']['value'] );
+				$args['list'] = sanitize_text_field( $list['ctct-opt-in']['value'] );
 
 				// Send that to our API.
-				return constantcontact_api()->add_contact( $args, $values['ctct-id']['value'] );
+				return constantcontact_api()->add_contact( $args, $list['ctct-id']['value'] );
 			}
 		}
 	}
