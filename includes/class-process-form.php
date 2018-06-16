@@ -752,4 +752,24 @@ class ConstantContact_Process_Form {
 		}
 		return $has_all;
 	}
+
+	public function add_extra_lists( $data, $form_id ) {
+		# @todo determine key to use for extras
+		$extras = get_post_meta( $form_id, 'thing', true );
+$extras = 'thing';
+		if ( empty( $extras ) ) {
+			return $data;
+		}
+
+		$extra_lists = [];
+		$extra_lists[] = $data['ctct-opt-in'];
+		$extra_lists[] = [
+			'key' => 'ctct-opt-in',
+			'value' => $extras,
+			'orig_key' => 'ctct-opt-in'
+		];
+		$data['ctct-opt-in'] = $extra_lists;
+
+		return $data;
+	}
 }
