@@ -173,7 +173,6 @@ class ConstantContact_Mail {
 			}
 		}
 
-		// Make sure we have an email set.
 		if ( isset( $values['ctct-opt-in'] ) && isset( $values['ctct-opt-in']['value'] ) ) {
 
 			// Make sure that our list is a top level.
