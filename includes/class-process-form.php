@@ -346,7 +346,10 @@ class ConstantContact_Process_Form {
 
 			if ( constant_contact()->api->is_connected() && 'on' === $maybe_bypass ) {
 				constant_contact()->mail->submit_form_values( $return['values'] ); // Emails but doesn't schedule cron.
-				constant_contact()->mail->opt_in_user( $this->clean_values( $return['values'] ) );
+				# @todo move clean_values call out of automatically passing in to opt_in_user. Need to manipulate a bit more.
+				$clean = $this->clean_values( $return['values'] );
+				$submitted_values = $this->add_extra_lists( $clean, $orig_form_id );
+				constant_contact()->mail->opt_in_user( $submitted_values );
 			} else {
 				constant_contact()->mail->submit_form_values( $return['values'], true );
 			}
