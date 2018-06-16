@@ -757,6 +757,8 @@ class ConstantContact_Process_Form {
 		# @todo determine key to use for extras
 		$extras = get_post_meta( $form_id, 'thing', true );
 $extras = 'thing';
+
+		# @todo Could be one-to-many so anticipate an array of list IDs from $extras.
 		if ( empty( $extras ) ) {
 			return $data;
 		}
