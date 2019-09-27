@@ -15,4 +15,12 @@ class ConstantContact_Helper_Functions_Test extends TestCase {
 		$this->assertTrue( function_exists( 'constant_contact_display_form' ) );
 		$this->assertTrue( function_exists( 'constant_contact_get_forms' ) );
 	}
+
+	function test_constant_contact_maybe_display_optin_notification() {
+
+	}
+
+	function test_constant_contact_maybe_display_review_notification() {
+
+	}
 }
