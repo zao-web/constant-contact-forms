@@ -9,12 +9,14 @@
  * phpcs:disable WebDevStudios.All.RequireAuthor -- Don't require author tag in docblocks.
  */
 
+use PHPUnit\Framework\TestCase;
+
 /**
  * Tests the ConstantContact_Shortcode class.
  *
  * @since 1.6.0
  */
-class ConstantContact_Shortcode_Test extends WP_UnitTestCase {
+class ConstantContact_Shortcode_Test extends TestCase {
 
 	/**
 	 * Set up.
