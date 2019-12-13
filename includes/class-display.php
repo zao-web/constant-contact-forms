@@ -1000,12 +1000,13 @@ class ConstantContact_Display {
 		/**
 		 * Filter to add classes for the rendering input.
 		 *
-		 * @since  1.2.0
-		 * @param  array  $classes Array of classes to apply to the field.
-		 * @param  string $type    The field type being rendered.
+		 * @since 1.2.0
+		 * @param array  $classes Array of classes to apply to the field.
+		 * @param string $type    The field type being rendered.
+		 * @param int    $form_id ID of the form being rendered.
 		 * @return array
 		 */
-		$classes = apply_filters( 'constant_contact_input_classes', $classes, $type );
+		$classes = apply_filters( 'constant_contact_input_classes', $classes, $type, $form_id );
 
 		/**
 		 * Filters whether or not to remove characters from potential maxlength attribute value.
