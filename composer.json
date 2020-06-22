@@ -16,7 +16,8 @@
     "squizlabs/php_codesniffer": "3.3.1",
     "wp-coding-standards/wpcs": "2.1.0",
     "phpcompatibility/phpcompatibility-wp": "^2.0.0",
-    "webdevstudios/php-coding-standards": "^1.0.0"
+    "webdevstudios/php-coding-standards": "^1.0.0",
+    "bamarni/composer-bin-plugin": "^1.4"
   },
   "authors": [
     {
