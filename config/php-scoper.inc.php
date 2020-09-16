@@ -19,10 +19,12 @@ return [
 	 *
 	 * For more see: https://github.com/humbug/php-scoper#finders-and-paths
 	 */
+	'prefix'                     => 'ccwp',
 	'finders'                    => [
-		Finder::create()->files()->in( 'vendor/guzzlehttp/guzzle' )->name( [ '*.php', 'LICENSE', 'composer.json' ] ),
-		Finder::create()->files()->in( 'vendor/guzzlehttp/ringphp' )->name( [ '*.php', 'LICENSE', 'composer.json' ] ),
-		Finder::create()->files()->in( 'vendor/guzzlehttp/streams' )->name( [ '*.php', 'LICENSE', 'composer.json' ] ),
+		Finder::create()->files()->in( 'vendor' )->name( [ '*.php', 'LICENSE', 'composer.json' ] ),
+		Finder::create()->append([
+			'composer.json',
+		])
 	],
 
-);
+];
