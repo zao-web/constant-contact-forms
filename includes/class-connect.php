@@ -289,7 +289,8 @@ class ConstantContact_Connect {
 					</div>
 					<?php
 
-					$auth_link = constantcontact_api()->get_authorization_url();
+					$proof     = constant_contact()->authserver->set_verification_option();
+					$auth_link = constant_contact()->authserver->do_connect_url( $proof );
 					$auth_link = add_query_arg( [ 'rmc' => 'wp_connect_connect' ], $auth_link );
 
 					if ( $auth_link ) :
