@@ -58,7 +58,7 @@ class ConstantContact_API {
 	private array $scopes       = [];
 	private array $valid_scopes = [ 'account_read', 'account_update', 'contact_data', 'campaign_data', 'offline_access' ];
 
-	private $client_api_key = '1929d2f8-32b2-45c9-b948-b9492d678ca5';
+	private $client_api_key = 'a5e132cc-9e78-4da7-94d5-1ed7f652981d';
 	private $redirect_URI   = 'https://app.constantcontact.com/pages/dma/portal/oauth2';
 	
 
