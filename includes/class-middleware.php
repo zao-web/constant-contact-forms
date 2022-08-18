@@ -102,7 +102,7 @@ class ConstantContact_Middleware {
 	 * @return string URL of auth server base.
 	 */
 	public function get_auth_server_link() {
-		return 'https://ctctmwv3.wdslab.com/';
+		return 'https://middleware.test/';
 	}
 
 	/**
@@ -129,34 +129,6 @@ class ConstantContact_Middleware {
 	}
 
 	/**
-	 * encrypt or decrypts given string with chosen cipher method e.g. AES-256-CB
-	* @param null $action
-	* @param null $string
-	* 
-	* @return string encrypted or decrypted data in base64 OpenSSL format
-	*/
-
-	function encrypt_decrypt($action, $string) {
-		
-		$output = false;
-		$encrypt_method = "AES-256-CBC";
-		$secret_key = 'WS-SERVICE-KEY';
-		$secret_iv = 'WS-SERVICE-VALUE';
-		// hash
-		$key = hash('sha256', $secret_key);
-		// iv - encrypt method AES-256-CBC expects 16 bytes - else you will get a warning
-		$iv = substr(hash('sha256', $secret_iv), 0, 16);
-		if ($action == 'encrypt') {
-			$output = base64_encode(openssl_encrypt($string, $encrypt_method, $key, 0, $iv));
-		} else {
-			if ($action == 'decrypt') {
-				$output = openssl_decrypt(base64_decode($string), $encrypt_method, $key, 0, $iv);
-			}
-		}
-		return $output;
-	}
-
-	/**
 	 * Verify a returned request from the auth server, and save the returned token.
 	 *
 	 * @since  1.0.0
@@ -166,21 +138,24 @@ class ConstantContact_Middleware {
 	 * @return boolean Is valid?
 	 */
 	public function verify_and_save_access_token_return() {
-		$proof = filter_input( INPUT_GET, 'proof', FILTER_SANITIZE_STRING );
-		$token = filter_input( INPUT_GET, 'token', FILTER_SANITIZE_STRING );
-		$key   = filter_input( INPUT_GET, 'key', FILTER_SANITIZE_STRING );
+		$proof 			 = filter_input( INPUT_GET, 'proof', FILTER_SANITIZE_STRING );
+		$token 			 = filter_input( INPUT_GET, 'token', FILTER_SANITIZE_STRING );
+		$key   			 = filter_input( INPUT_GET, 'key', FILTER_SANITIZE_STRING );
+		$refresh_token   = filter_input( INPUT_GET, 'refresh_token', FILTER_SANITIZE_STRING );
+		
 
 		// If we get this, we'll want to start our process of
 		// verifying the proof that the middleware server gives us
 		// so that we can ignore any malicious entries that are sent to us
 		// Sanitize our expected data.
-		$proof = ! empty( $proof ) ? sanitize_text_field( $proof ) : false;
-		$token = ! empty( $token ) ? sanitize_text_field( $token ) : false;
-		$key   = ! empty( $key ) ? sanitize_text_field( $key ) : false;
+		$proof 			 = ! empty( $proof ) ? sanitize_text_field( $proof ) : false;
+		$token 			 = ! empty( $token ) ? sanitize_text_field( $token ) : false;
+		$key   			 = ! empty( $key ) ? sanitize_text_field( $key ) : false;
+		$refresh_token   = ! empty( $refresh_token ) ? sanitize_text_field( $refresh_token ) : false;
 
 		// If we're missing any piece of data, we failed.
-		if ( ! $proof || ! $token || ! $key ) {
-			constant_contact_maybe_log_it( 'Authentication', 'Proof, token, or key missing for access verification.' );
+		if ( ! $proof || ! $token || ! $key || ! $refresh_token ) {
+			constant_contact_maybe_log_it( 'Authentication', 'Proof, token, refresh token or key missing for access verification.' );
 			return false;
 		}
 
@@ -191,7 +166,7 @@ class ConstantContact_Middleware {
 
 		constant_contact_maybe_log_it( 'Authentication', 'Authorization verification succeeded.' );
 
-		constant_contact()->connect->update_token( sanitize_text_field( $token ) );
+		constant_contact()->connect->update_token( sanitize_text_field( $token ) , sanitize_text_field( $refresh_token ) );
 		constant_contact()->connect->e_set( '_ctct_api_key', sanitize_text_field( $key ) );
 		return true;
 	}
