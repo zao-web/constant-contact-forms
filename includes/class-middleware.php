@@ -79,12 +79,12 @@ class ConstantContact_Middleware {
 	 */
 	public function add_query_args_to_link( $link, $proof, $extra_args = [] ) {
 		$return = add_query_arg(
-		[
-			'ctct-auth'  => 'auth',
-			'ctct-proof' => esc_attr( $proof ),
-			'ctct-site'  => get_site_url(),
-		],
-		$link
+			[
+				'ctct-auth'  => 'auth',
+				'ctct-proof' => esc_attr( $proof ),
+				'ctct-site'  => get_site_url(),
+			],
+			$link
 		);
 
 		if ( ! empty( $extra_args ) ) {
@@ -138,22 +138,21 @@ class ConstantContact_Middleware {
 	 * @return boolean Is valid?
 	 */
 	public function verify_and_save_access_token_return() {
-		$proof 			 = filter_input( INPUT_GET, 'proof', FILTER_SANITIZE_STRING );
-		$token 			 = filter_input( INPUT_GET, 'token', FILTER_SANITIZE_STRING );
-		$key   			 = filter_input( INPUT_GET, 'key', FILTER_SANITIZE_STRING );
-		$expiry   		 = filter_input( INPUT_GET, 'expiry', FILTER_SANITIZE_STRING );
-		$refresh_token   = filter_input( INPUT_GET, 'refresh_token', FILTER_SANITIZE_STRING );
-		
+		$proof         = filter_input( INPUT_GET, 'proof', FILTER_SANITIZE_STRING );
+		$token         = filter_input( INPUT_GET, 'token', FILTER_SANITIZE_STRING );
+		$key           = filter_input( INPUT_GET, 'key', FILTER_SANITIZE_STRING );
+		$expiry        = filter_input( INPUT_GET, 'expiry', FILTER_SANITIZE_STRING );
+		$refresh_token = filter_input( INPUT_GET, 'refresh_token', FILTER_SANITIZE_STRING );
 
 		// If we get this, we'll want to start our process of
 		// verifying the proof that the middleware server gives us
 		// so that we can ignore any malicious entries that are sent to us
 		// Sanitize our expected data.
-		$proof 			 = ! empty( $proof ) ? sanitize_text_field( $proof ) : false;
-		$token 			 = ! empty( $token ) ? sanitize_text_field( $token ) : false;
-		$key   			 = ! empty( $key ) ? sanitize_text_field( $key ) : false;
-		$$expiry   		 = ! empty( $$expiry ) ? sanitize_text_field( $$expiry ) : false;
-		$refresh_token   = ! empty( $refresh_token ) ? sanitize_text_field( $refresh_token ) : false;
+		$proof         = ! empty( $proof ) ? sanitize_text_field( $proof ) : false;
+		$token         = ! empty( $token ) ? sanitize_text_field( $token ) : false;
+		$key           = ! empty( $key ) ? sanitize_text_field( $key ) : false;
+		$$expiry       = ! empty( $$expiry ) ? sanitize_text_field( $$expiry ) : false;
+		$refresh_token = ! empty( $refresh_token ) ? sanitize_text_field( $refresh_token ) : false;
 
 		// If we're missing any piece of data, we failed.
 		if ( ! $proof || ! $token || ! $key || ! $refresh_token ) {
@@ -168,10 +167,10 @@ class ConstantContact_Middleware {
 
 		constant_contact_maybe_log_it( 'Authentication', 'Authorization verification succeeded.' );
 
-		constant_contact()->connect->update_token( sanitize_text_field( $token ) , sanitize_text_field( $refresh_token ) );
+		constant_contact()->connect->update_token( sanitize_text_field( $token ), sanitize_text_field( $refresh_token ) );
 		constant_contact()->connect->e_set( '_ctct_api_key', sanitize_text_field( $key ) );
 		constant_contact()->connect->e_set( 'token_expiry', sanitize_text_field( $expiry ) );
-		
+
 		return true;
 	}
 

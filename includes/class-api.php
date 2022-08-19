@@ -40,7 +40,7 @@ class ConstantContact_API {
 	 */
 	protected $access_token  = false;
 	protected $refresh_token = false;
-	protected $expires_in = false;
+	protected $expires_in    = false;
 
 	private string $last_error = '';
 	private string $body       = '';
@@ -50,7 +50,7 @@ class ConstantContact_API {
 
 	private $session_callback = null;
 
-	public bool $PKCE           = true;
+	public bool $PKCE = true;
 
 	public int $this_user_id = 0;
 
@@ -76,21 +76,24 @@ class ConstantContact_API {
 
 		$this->this_user_id = get_current_user_id();
 
-		$this->expires_in = constant_contact()->connect->e_get( '_ctct_expires_in' );
+		$this->expires_in    = constant_contact()->connect->e_get( '_ctct_expires_in' );
 		$this->refresh_token = constant_contact()->connect->e_get( '_ctct_refresh_token' );
-		$this->access_token = constant_contact()->connect->e_get( '_ctct_access_token' );
-		
+		$this->access_token  = constant_contact()->connect->e_get( '_ctct_access_token' );
+
 		// custom scheduling based on the expiry time returned with access token
 
 		if ( ! empty( $this->expires_in ) ) {
-			add_filter( 'cron_schedules', function ( $schedules ) {
-				$schedules['pkce_expiry'] = array(
-					'interval' => $this->expires_in - 3600 , //refreshing token before 1 hour of expiry
-					'display' => __( 'Token Expiry' )
-				);
-				return $schedules;
-			 } );
-	
+			add_filter(
+				'cron_schedules',
+				function ( $schedules ) {
+					$schedules['pkce_expiry'] = [
+						'interval' => $this->expires_in - 3600, // refreshing token before 1 hour of expiry
+						'display'  => __( 'Token Expiry' ),
+					];
+					return $schedules;
+				}
+			);
+
 			if ( ! wp_next_scheduled( 'refresh_token_job' ) ) { // if it hasn't been scheduled
 				wp_schedule_event( time(), 'pkce_expiry', 'refresh_token_job' ); // schedule it
 			}
@@ -132,7 +135,7 @@ class ConstantContact_API {
 				$url .= constant_contact()->connect->get_api_token();
 				break;
 		}
-		return $url; 
+		return $url;
 	}
 
 	/**
@@ -537,21 +540,20 @@ class ConstantContact_API {
 	}
 
 	/**
-	 * Create a new contact or update an existing contact. 
-	 * This method uses the email_address string value you include in the 
-	 * request body to determine if it should create an new contact or update 
+	 * Create a new contact or update an existing contact.
+	 * This method uses the email_address string value you include in the
+	 * request body to determine if it should create an new contact or update
 	 * an existing contact.
 	 *
 	 * @since 1.0.0
 	 * @since 1.3.0 Added $form_id parameter.
 	 *
-	 * 
 	 * @param array $new_contact New contact data.
 	 * @param int   $form_id     ID of the form being processed.
 	 * @return array Current connect contact.
 	 */
 	public function add_contact( $new_contact = [], $form_id = 0 ) {
-		
+
 		if ( empty( $new_contact ) ) {
 			return [];
 		}
@@ -576,7 +578,7 @@ class ConstantContact_API {
 			}
 
 			$return_contact = $this->create_update_contact( $list, $email, $new_contact, $form_id );
-			
+
 		} catch ( CtctException $ex ) {
 			add_filter( 'constant_contact_force_logging', '__return_true' );
 			$extra        = constant_contact_location_and_line( __METHOD__, __LINE__ );
@@ -660,12 +662,12 @@ class ConstantContact_API {
 	 * @param string       $form_id   Form ID being processed.
 	 * @return mixed                  Response from API.
 	 */
-	public function create_update_contact( $list, $email, $user_data, $form_id ) { 
+	public function create_update_contact( $list, $email, $user_data, $form_id ) {
 
 		$contact = new Contact();
 
 		$contact->email_address = sanitize_text_field( $email );
-		
+
 		$this->add_to_list( $contact, $list );
 
 		try {
@@ -693,7 +695,7 @@ class ConstantContact_API {
 		return $this->cc()->create_update_contact(
 			(array) $contact
 		);
-	
+
 	}
 
 	/**
@@ -846,7 +848,6 @@ class ConstantContact_API {
 		if ( null !== $address ) {
 			$contact->addAddress( $address );
 		}
-
 
 		return $contact;
 	}
@@ -1128,7 +1129,7 @@ class ConstantContact_API {
 
 			$this->access_token  = $data['access_token'] ?? '';
 			$this->refresh_token = $data['refresh_token'] ?? '';
-			$this->expires_in = $data['expires_in'] ?? '';
+			$this->expires_in    = $data['expires_in'] ?? '';
 
 			return isset( $data['access_token'], $data['refresh_token'] );
 		}
