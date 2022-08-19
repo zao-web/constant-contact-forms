@@ -44,7 +44,7 @@ class ConstantContact_Notification_Content {
 	 * @return string
 	 */
 	public static function activation() {
-		$auth_url = add_query_arg( [ 'rmc' => 'wp_admin_connect' ], constant_contact()->api->get_authorization_url() );
+		$auth_url = add_query_arg( [ 'rmc' => 'wp_admin_connect' ], constant_contact()->api->get_connect_link() );
 		$try_url  = add_query_arg( [ 'rmc' => 'wp_admin_try' ], constant_contact()->api->get_signup_link() );
 		$acc_url  = add_query_arg(
 			[

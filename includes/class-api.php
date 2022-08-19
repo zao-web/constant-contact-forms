@@ -177,8 +177,10 @@ class ConstantContact_API {
 
 				$acct_data = $this->cc()->get_account_info();
 
-				if ( ! isset( $acct_data['error_message'] ) ) {
-					constant_contact_maybe_log_it( 'Authentication', 'Authorization failed.' );
+				if ( isset( $acct_data['error_message'] ) ) {
+					constant_contact_maybe_log_it( 'Authentication', $acct_data['error_message'] );
+					return false;
+				} else {
 					set_transient( 'constant_contact_acct_info', $acct_data, 1 * HOUR_IN_SECONDS );
 				}
 			} catch ( CtctException $ex ) {

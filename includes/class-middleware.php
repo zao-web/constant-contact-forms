@@ -141,6 +141,7 @@ class ConstantContact_Middleware {
 		$proof 			 = filter_input( INPUT_GET, 'proof', FILTER_SANITIZE_STRING );
 		$token 			 = filter_input( INPUT_GET, 'token', FILTER_SANITIZE_STRING );
 		$key   			 = filter_input( INPUT_GET, 'key', FILTER_SANITIZE_STRING );
+		$expiry   		 = filter_input( INPUT_GET, 'expiry', FILTER_SANITIZE_STRING );
 		$refresh_token   = filter_input( INPUT_GET, 'refresh_token', FILTER_SANITIZE_STRING );
 		
 
@@ -151,6 +152,7 @@ class ConstantContact_Middleware {
 		$proof 			 = ! empty( $proof ) ? sanitize_text_field( $proof ) : false;
 		$token 			 = ! empty( $token ) ? sanitize_text_field( $token ) : false;
 		$key   			 = ! empty( $key ) ? sanitize_text_field( $key ) : false;
+		$$expiry   		 = ! empty( $$expiry ) ? sanitize_text_field( $$expiry ) : false;
 		$refresh_token   = ! empty( $refresh_token ) ? sanitize_text_field( $refresh_token ) : false;
 
 		// If we're missing any piece of data, we failed.
@@ -168,6 +170,8 @@ class ConstantContact_Middleware {
 
 		constant_contact()->connect->update_token( sanitize_text_field( $token ) , sanitize_text_field( $refresh_token ) );
 		constant_contact()->connect->e_set( '_ctct_api_key', sanitize_text_field( $key ) );
+		constant_contact()->connect->e_set( 'token_expiry', sanitize_text_field( $expiry ) );
+		
 		return true;
 	}
 

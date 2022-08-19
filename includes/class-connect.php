@@ -182,7 +182,8 @@ class ConstantContact_Connect {
 
 							try {
 								$account = (object) constant_contact()->api->get_account_info( $token );
-								if ( $account ) {
+
+								if ( ! is_wp_error( $account ) && $account ) {
 									echo esc_html( $account->first_name . ' ' . $account->last_name );
 								}
 							} catch ( Exception $ex ) {
