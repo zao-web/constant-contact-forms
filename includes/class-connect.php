@@ -186,6 +186,7 @@ class ConstantContact_Connect {
 									echo esc_html( $account->first_name . ' ' . $account->last_name );
 								}
 							} catch ( Exception $ex ) {
+								constant_contact_maybe_log_it( 'Account info', 'There was an issue with retrieving connected account information. Please try again' );
 								esc_html_e( 'There was an issue with retrieving connected account information. Please try again.', 'constant-contact-forms' );
 							}
 							?>
@@ -347,11 +348,6 @@ class ConstantContact_Connect {
 			delete_option( '_ctct_access_token' );
 			delete_option( 'ctct_refresh_token' );
 			delete_option( '_ctct_refresh_token' );
-
-			constantcontact_api()->session( 'ctct_access_token', null );
-			constantcontact_api()->session( '_ctct_access_token', null );
-			constantcontact_api()->session( 'ctct_refresh_token', null );
-			constantcontact_api()->session( '_ctct_refresh_token', null );
 
 			$saved_options = get_option( 'ctct_options_settings' );
 			if ( isset( $saved_options['_ctct_disable_email_notifications'] ) ) {
