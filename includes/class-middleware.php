@@ -102,7 +102,7 @@ class ConstantContact_Middleware {
 	 * @return string URL of auth server base.
 	 */
 	public function get_auth_server_link() {
-		return 'https://middleware.test/';
+		return 'https://ctctmwv3.wdslab.com/';
 	}
 
 	/**
