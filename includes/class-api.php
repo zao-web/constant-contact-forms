@@ -19,7 +19,6 @@ use Ctct\Exceptions\CtctException;
 /**
  * Powers connection between site and Constant Contact API.
  *
- * @todo Test RefreshToken Cron Job
  * @since 1.0.0
  */
 class ConstantContact_API {
@@ -39,12 +38,9 @@ class ConstantContact_API {
 	 * @since 1.3.0
 	 * @var bool
 	 */
-	public string $access_token  = '';
-	public string $refresh_token = '';
-	public string $expires_in = '';
-
-	private string $oauth2_url    = 'https://authz.constantcontact.com/oauth2/default/v1/token';
-	private string $authorize_url = 'https://authz.constantcontact.com/oauth2/default/v1/authorize';
+	protected $access_token  = false;
+	protected $refresh_token = false;
+	protected $expires_in = false;
 
 	private string $last_error = '';
 	private string $body       = '';
@@ -55,12 +51,6 @@ class ConstantContact_API {
 	private $session_callback = null;
 
 	public bool $PKCE           = true;
-	private array $scopes       = [];
-	private array $valid_scopes = [ 'account_read', 'account_update', 'contact_data', 'campaign_data', 'offline_access' ];
-
-	private $client_api_key = 'a5e132cc-9e78-4da7-94d5-1ed7f652981d';
-	private $redirect_URI   = 'https://app.constantcontact.com/pages/dma/portal/oauth2';
-	
 
 	public int $this_user_id = 0;
 
@@ -73,7 +63,6 @@ class ConstantContact_API {
 	 */
 	public function __construct( $plugin ) {
 		$this->plugin = $plugin;
-		$this->scopes = array_flip( $this->valid_scopes );
 
 		add_action( 'init', [ $this, 'cct_init' ] );
 		add_action( 'refresh_token_job', [ $this, 'refresh_token' ] );
@@ -127,21 +116,27 @@ class ConstantContact_API {
 	 * @param string $type api key type.
 	 * @return string Access API token.
 	 */
-	public function get_api_token() {
+	public function get_api_token( $type = '' ) {
 
-		$token = '';
+		$url = '';
 
-		if ( constant_contact()->connect->e_get( '_ctct_access_token' ) ) {
-			$token .= constant_contact()->connect->e_get( '_ctct_access_token' );
-		} else {
-			$this->acquire_access_token( $_GET );
+		switch ( $type ) {
+			case 'CTCT_APIKEY':
+				if ( defined( 'CTCT_APIKEY' ) && CTCT_APIKEY ) {
+					return CTCT_APIKEY;
+				}
+
+				$url .= constant_contact()->connect->e_get( '_ctct_api_key' );
+				break;
+			default:
+				$url .= constant_contact()->connect->get_api_token();
+				break;
 		}
-
-		return $token;
+		return $url; 
 	}
 
 	/**
-	 * Returns Refresh API token.
+	 * Getter method for Refresh API token.
 	 *
 	 * @since 1.0.0
 	 *
@@ -182,7 +177,8 @@ class ConstantContact_API {
 
 				$acct_data = $this->cc()->get_account_info();
 
-				if ( $acct_data ) {
+				if ( ! isset( $acct_data['error_message'] ) ) {
+					constant_contact_maybe_log_it( 'Authentication', 'Authorization failed.' );
 					set_transient( 'constant_contact_acct_info', $acct_data, 1 * HOUR_IN_SECONDS );
 				}
 			} catch ( CtctException $ex ) {
@@ -927,11 +923,28 @@ class ConstantContact_API {
 	public function is_connected() {
 		static $token = null;
 
-		if ( constant_contact()->connect->e_get( '_ctct_access_token' ) ) {
-			$token = constant_contact()->connect->e_get( '_ctct_access_token' ) ? true : false;
+		if ( null === $token ) {
+			$token = get_option( 'ctct_access_token', false ) ? true : false;
 		}
 
 		return $token;
+	}
+
+	/**
+	 * Helper method to output a link for our connect modal.
+	 *
+	 * @since 1.0.0
+	 * @return string Connect URL.
+	 */
+	public function get_connect_link() {
+
+		static $proof = null;
+
+		if ( null === $proof ) {
+			$proof = constant_contact()->authserver->set_verification_option();
+		}
+
+		return constant_contact()->authserver->do_connect_url( $proof );
 	}
 
 	/**
@@ -1024,35 +1037,6 @@ class ConstantContact_API {
 		return $as_parts ? $disclosure : implode( ', ', array_values( $disclosure ) );
 	}
 
-	/**
-	 * Generate code_verifier and code_challenge for rfc7636 PKCE.
-	 * https://datatracker.ietf.org/doc/html/rfc7636#appendix-B
-	 *
-	 * @return array [code_verifier, code_challenge].
-	 */
-	private function code_challenge( ?string $code_verifier = null ): array {
-		$gen = static function () {
-			$strings = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-._~';
-			$length  = random_int( 43, 128 );
-
-			for ( $i = 0; $i < $length; $i++ ) {
-				yield $strings[ random_int( 0, 65 ) ];
-			}
-		};
-
-		$code = $code_verifier ?? implode( '', iterator_to_array( $gen() ) );
-
-		if ( ! \preg_match( '/[A-Za-z0-9-._~]{43,128}/', $code ) ) {
-			return [ '', '' ];
-		}
-
-		return [ $code, $this->base64url_encode( pack( 'H*', hash( 'sha256', $code ) ) ) ];
-	}
-
-	private function base64url_encode( string $data ): string {
-		return rtrim( strtr( base64_encode( $data ), '+/', '-_' ), '=' );
-	}
-
 	public function session( string $key, ?string $value ) {
 		if ( $this->session_callback ) {
 			return call_user_func( $this->session_callback, $key, $value );
@@ -1067,41 +1051,6 @@ class ConstantContact_API {
 		update_user_meta( $this->this_user_id, $key, $value );
 
 		return $value;
-	}
-
-	/**
-	 * Generate the URL an account owner would use to allow your app
-	 * to access their account.
-	 *
-	 * After visiting the URL, the account owner is prompted to log in and allow your app to access their account.
-	 * They are then redirected to your redirect URL with the authorization code appended as a query parameter. e.g.:
-	 * http://localhost:8888/?code={authorization_code}
-	 */
-	public function get_authorization_url(): string {
-
-		$scopes                           = implode( '+', array_keys( $this->scopes ) );
-		[$code_verifier, $code_challenge] = $this->code_challenge();
-
-		$state = bin2hex( random_bytes( 8 ) );
-		$this->session( 'CtctConstantContactState', $state );
-
-		$params = [
-			'client_id'             => $this->client_api_key,
-			'redirect_uri'          => $this->redirect_URI,
-			'response_type'         => 'code',
-			'code_challenge'        => $code_challenge,
-			'code_challenge_method' => 'S256',
-			'state'                 => $state,
-			'scope'                 => $scopes,
-		];
-
-		// Store generated random state and code challenge based on RFC 7636
-		// https://datatracker.ietf.org/doc/html/rfc7636#section-6.1
-		$this->session( 'CtctConstantContactcode_verifier', $code_verifier );
-
-		$url = $this->authorize_url . '?' . str_replace( '%2B', '+', http_build_query( $params ) ); // hack %2B to + for stupid CC API bug
-
-		return $url;
 	}
 
 	/**
@@ -1128,52 +1077,6 @@ class ConstantContact_API {
 	}
 
 	/**
-	 * Exchange an authorization code for an access token.
-	 *
-	 * Make this call by passing in the code present when the account owner is redirected back to you.
-	 * The response will contain an 'access_token' and 'refresh_token'
-	 *
-	 * @param array of get parameters passed to redirect URL
-	 */
-	public function acquire_access_token( array $parameters ): bool {
-
-		if ( isset( $parameters['error'] ) ) {
-			$this->status_code = 0;
-			$this->last_error  = $parameters['error'] . ': ' . ( $parameters['error_description'] ?? 'Undefined' );
-
-			return false;
-		}
-
-		$expected_state = $this->session( 'CtctConstantContactState', null );
-
-		if ( ( $parameters['state'] ?? 'undefined' ) != $expected_state ) {
-			$this->status_code = 0;
-			$this->last_error  = 'state is not correct';
-			return false;
-		}
-		// Create full request URL
-		$body = [
-			'client_id'    => $this->client_api_key,
-			'code'         => $parameters['code'],
-			'redirect_uri' => $this->redirect_URI,
-			'grant_type'   => 'authorization_code',
-		];
-
-		$body['code_verifier'] = $this->session( 'CtctConstantContactcode_verifier', null );
-
-		$headers = $this->set_authorization();
-
-		$url = $this->oauth2_url;
-
-		$options = [
-			'body'    => $body,
-			'headers' => $headers,
-		];
-
-		return $this->exec( $url, $options );
-	}
-
-	/**
 	 * Refresh the access token.
 	 */
 	public function refresh_token(): bool {
@@ -1197,18 +1100,6 @@ class ConstantContact_API {
 		return $this->exec( $url, $options );
 	}
 
-	private function set_authorization(): array {
-
-		// Set authorization header
-		// Make string of "API_KEY:SECRET"
-		$auth = $this->client_api_key;
-		// Base64 encode it
-		$credentials = base64_encode( $auth );
-		// Create and set the Authorization header to use the encoded credentials
-		$headers = [ 'Authorization: Basic ' . $credentials, 'cache-control: no-cache' ];
-
-		return $headers;
-	}
 
 	private function exec( $url, $options ): bool {
 		$response = wp_safe_remote_post( $url, $options );
