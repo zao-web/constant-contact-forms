@@ -74,7 +74,6 @@ class ConstantContact_Uninstall {
 			'ctct_plugin_version',
 			'ctct_privacy_policy_status',
 			'widget_ctct_form',
-			'_ctct_api_key',
 			'ctct_access_token',
 			'ctct_refresh_token',
 			'ctct_exceptions_exist',

@@ -102,7 +102,7 @@ class ConstantContact_Middleware {
 	 * @return string URL of auth server base.
 	 */
 	public function get_auth_server_link() {
-		return 'https://ctctmwv3.wdslab.com/';
+		return 'https://middleware.test';
 	}
 
 	/**
@@ -141,7 +141,7 @@ class ConstantContact_Middleware {
 		$proof         = filter_input( INPUT_GET, 'proof', FILTER_SANITIZE_STRING );
 		$token         = filter_input( INPUT_GET, 'token', FILTER_SANITIZE_STRING );
 		$key           = filter_input( INPUT_GET, 'key', FILTER_SANITIZE_STRING );
-		$expiry        = filter_input( INPUT_GET, 'expiry', FILTER_SANITIZE_STRING );
+		$token_expiry  = filter_input( INPUT_GET, 'token_expiry', FILTER_SANITIZE_STRING );
 		$refresh_token = filter_input( INPUT_GET, 'refresh_token', FILTER_SANITIZE_STRING );
 
 		// If we get this, we'll want to start our process of
@@ -151,7 +151,7 @@ class ConstantContact_Middleware {
 		$proof         = ! empty( $proof ) ? sanitize_text_field( $proof ) : false;
 		$token         = ! empty( $token ) ? sanitize_text_field( $token ) : false;
 		$key           = ! empty( $key ) ? sanitize_text_field( $key ) : false;
-		$$expiry       = ! empty( $$expiry ) ? sanitize_text_field( $$expiry ) : false;
+		$token_expiry  = ! empty( $token_expiry ) ? sanitize_text_field( $token_expiry ) : false;
 		$refresh_token = ! empty( $refresh_token ) ? sanitize_text_field( $refresh_token ) : false;
 
 		// If we're missing any piece of data, we failed.
@@ -166,10 +166,11 @@ class ConstantContact_Middleware {
 		}
 
 		constant_contact_maybe_log_it( 'Authentication', 'Authorization verification succeeded.' );
-
-		constant_contact()->connect->update_token( sanitize_text_field( $token ), sanitize_text_field( $refresh_token ) );
-		constant_contact()->connect->e_set( '_ctct_api_key', sanitize_text_field( $key ) );
-		constant_contact()->connect->e_set( 'token_expiry', sanitize_text_field( $expiry ) );
+		
+		// securing the tokens
+		constant_contact()->connect->e_set( 'ctct_access_token', sanitize_text_field( $token ), true );
+		constant_contact()->connect->e_set( 'ctct_refresh_token', sanitize_text_field( $refresh_token ), true );
+		constant_contact()->connect->e_set( '_ctct_expires_in', sanitize_text_field( $token_expiry ) );
 
 		return true;
 	}

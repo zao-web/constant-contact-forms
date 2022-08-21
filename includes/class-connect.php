@@ -102,7 +102,6 @@ class ConstantContact_Connect {
 		if ( isset( $_GET['cc_connect_attempt'] ) && is_user_logged_in() ) {
 
 			$verified = constant_contact()->authserver->verify_and_save_access_token_return();
-			// $verified = constantcontact_api()->acquire_access_token( $_GET );
 
 			$redirect_args = [
 				'post_type' => 'ctct_forms',
@@ -346,9 +345,10 @@ class ConstantContact_Connect {
 		if ( wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['ctct-admin-disconnect'] ) ), 'ctct-admin-disconnect' ) ) {
 
 			delete_option( 'ctct_access_token' );
-			delete_option( '_ctct_access_token' );
 			delete_option( 'ctct_refresh_token' );
-			delete_option( '_ctct_refresh_token' );
+			delete_option( '_ctct_expires_in' );
+
+			wp_clear_scheduled_hook('refresh_token_job');
 
 			$saved_options = get_option( 'ctct_options_settings' );
 			if ( isset( $saved_options['_ctct_disable_email_notifications'] ) ) {
@@ -432,20 +432,6 @@ class ConstantContact_Connect {
 		return $saved;
 	}
 
-	/**
-	 * Secure API access token.
-	 *
-	 * @since 1.0.0
-	 *
-	 * @throws Exception Exception.
-	 *
-	 * @param string $access_token API access token.
-	 * @return string
-	 */
-	public function update_token( $access_token, $refresh_token ) {
-		return $this->e_set( 'ctct_access_token', $access_token, true );
-		return $this->e_set( 'ctct_refresh_token', $refresh_token, true );
-	}
 
 	/**
 	 * Get saved API token.
@@ -468,11 +454,14 @@ class ConstantContact_Connect {
 	 * @since 1.0.0
 	 */
 	public function check_deleted_legacy_token() {
-		$legacy = get_option( '_ctct_access_token' );
+		$legacy = get_option( '_ctct_token' );
+		$legacy = $legacy ? $legacy : get_option( 'ctct_token' );
 
 		if ( $legacy ) {
-			$this->update_token( $legacy, null );
-			delete_option( '_ctct_access_token' );
+			$this->e_set( 'ctct_access_token', $legacy, true );
+			
+			delete_option( '_ctct_token' );
+			delete_option( 'ctct_token' );
 		}
 	}
 

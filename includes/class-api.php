@@ -65,7 +65,7 @@ class ConstantContact_API {
 		$this->plugin = $plugin;
 
 		add_action( 'init', [ $this, 'cct_init' ] );
-		add_action( 'refresh_token_job', [ $this, 'refresh_token' ] );
+		add_action( 'refresh_token_job', [ $this, 'refresh_the_access_token' ] );
 	}
 
 	/**
@@ -77,17 +77,16 @@ class ConstantContact_API {
 		$this->this_user_id = get_current_user_id();
 
 		$this->expires_in    = constant_contact()->connect->e_get( '_ctct_expires_in' );
-		$this->refresh_token = constant_contact()->connect->e_get( '_ctct_refresh_token' );
-		$this->access_token  = constant_contact()->connect->e_get( '_ctct_access_token' );
+		$this->refresh_token = constant_contact()->connect->e_get( 'ctct_refresh_token' );
+		$this->access_token  = constant_contact()->connect->e_get( 'ctct_access_token' );
 
 		// custom scheduling based on the expiry time returned with access token
-
 		if ( ! empty( $this->expires_in ) ) {
 			add_filter(
 				'cron_schedules',
 				function ( $schedules ) {
 					$schedules['pkce_expiry'] = [
-						'interval' => $this->expires_in - 3600, // refreshing token before 1 hour of expiry
+						'interval' => $this->expires_in - 86360, // refreshing token before 1 hour of expiry
 						'display'  => __( 'Token Expiry' ),
 					];
 					return $schedules;
@@ -119,22 +118,10 @@ class ConstantContact_API {
 	 * @param string $type api key type.
 	 * @return string Access API token.
 	 */
-	public function get_api_token( $type = '' ) {
+	public function get_api_token() {
 
-		$url = '';
-
-		switch ( $type ) {
-			case 'CTCT_APIKEY':
-				if ( defined( 'CTCT_APIKEY' ) && CTCT_APIKEY ) {
-					return CTCT_APIKEY;
-				}
-
-				$url .= constant_contact()->connect->e_get( '_ctct_api_key' );
-				break;
-			default:
-				$url .= constant_contact()->connect->get_api_token();
-				break;
-		}
+		$url = constant_contact()->connect->get_api_token();
+				
 		return $url;
 	}
 
@@ -1082,23 +1069,29 @@ class ConstantContact_API {
 	/**
 	 * Refresh the access token.
 	 */
-	public function refresh_token(): bool {
+	public function refresh_the_access_token(): bool {
 
+		constant_contact_maybe_log_it( 'Refresh', 'Refreshing the token.' );
+		constant_contact_maybe_log_it( 'Refresh Token:', $this->refresh_token );
+		
 		// Create full request URL
 		$body = [
-			'client_id'     => $this->client_api_key,
-			'refresh_token' => constant_contact()->connect->e_get( '_ctct_refresh_token' ),
-			'redirect_uri'  => $this->redirect_URI,
+			'refresh_token' => constant_contact()->connect->e_get( $this->refresh_token ),
 			'grant_type'    => 'refresh_token',
 		];
+		
 
-		$url     = $this->oauth2_url;
+		$url     = 'https://authz.constantcontact.com/oauth2/default/v1/token';
 		$headers = $this->set_authorization();
 
 		$options = [
 			'body'    => $body,
-			'headers' => $headers,
+			'headers' => [
+				'Authorization' => 'Bearer ' . $this->get_api_token()
+			],
 		];
+
+		constant_contact_maybe_log_it( 'Refresh', 'Refreshed the token.' );
 
 		return $this->exec( $url, $options );
 	}
@@ -1119,12 +1112,8 @@ class ConstantContact_API {
 				$this->last_error = $data['error'] . ': ' . ( $data['error_description'] ?? 'Undefined' );
 			}
 
-			$this->session( '_ctct_access_token', $data['access_token'] );
-			$this->session( '_ctct_refresh_token', $data['refresh_token'] );
-			$this->session( '_ctct_expires_in', $data['expires_in'] );
-
-			constant_contact()->connect->e_set( '_ctct_access_token', $data['access_token'] );
-			constant_contact()->connect->e_set( '_ctct_refresh_token', $data['refresh_token'] );
+			constant_contact()->connect->e_set( 'ctct_access_token', $data['access_token'] );
+			constant_contact()->connect->e_set( 'ctct_refresh_token', $data['refresh_token'] );
 			constant_contact()->connect->e_set( '_ctct_expires_in', (string) $data['expires_in'] );
 
 			$this->access_token  = $data['access_token'] ?? '';
