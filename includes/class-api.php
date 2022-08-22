@@ -76,7 +76,7 @@ class ConstantContact_API {
 
 		$this->this_user_id = get_current_user_id();
 
-		$this->expires_in    = constant_contact()->connect->e_get( '_ctct_expires_in' );
+		$this->expires_in    = (int) constant_contact()->connect->e_get( '_ctct_expires_in' );
 		$this->refresh_token = constant_contact()->connect->e_get( 'ctct_refresh_token' );
 		$this->access_token  = constant_contact()->connect->e_get( 'ctct_access_token' );
 
@@ -86,7 +86,7 @@ class ConstantContact_API {
 				'cron_schedules',
 				function ( $schedules ) {
 					$schedules['pkce_expiry'] = [
-						'interval' => $this->expires_in - 86360, // refreshing token before 1 hour of expiry
+						'interval' => $this->expires_in - 86100, // refreshing token before 1 hour of expiry
 						'display'  => __( 'Token Expiry' ),
 					];
 					return $schedules;
@@ -1071,63 +1071,46 @@ class ConstantContact_API {
 	 */
 	public function refresh_the_access_token(): bool {
 
-		constant_contact_maybe_log_it( 'Refresh', 'Refreshing the token.' );
-		constant_contact_maybe_log_it( 'Refresh Token:', $this->refresh_token );
 		
+		constant_contact_maybe_log_it( 'Refresh Token:', $this->refresh_token );
+		constant_contact_maybe_log_it( 'Access Token:', $this->access_token );
+
+		$url = constant_contact()->authserver->get_auth_server_link();
+		$proof = esc_attr( wp_generate_password( 35, false ) );
 		// Create full request URL
 		$body = [
-			'refresh_token' => constant_contact()->connect->e_get( $this->refresh_token ),
+			'refresh_token' => $this->refresh_token,
+			'proof'			=> $proof,
 			'grant_type'    => 'refresh_token',
+			'site'			=> get_site_url()
 		];
 		
+		$response = wp_remote_get( 
+						$url, array(
+							'body'    => $body,
+							'timeout' => 120, 
+						)
+					); 
 
-		$url     = 'https://authz.constantcontact.com/oauth2/default/v1/token';
-		$headers = $this->set_authorization();
+		if ( ! is_wp_error( $response ) ) {
+			$data = json_decode( $response['body'], true );
+		}
 
-		$options = [
-			'body'    => $body,
-			'headers' => [
-				'Authorization' => 'Bearer ' . $this->get_api_token()
-			],
-		];
+		if ( empty( $data )  ) {
+			constant_contact_maybe_log_it( 'Refresh Token Error:', "Problem getting response from middleware" );
+			return false;
+		}
+
+		constant_contact()->connect->e_set( 'ctct_access_token', $data["token"], true );
+		constant_contact()->connect->e_set( 'ctct_refresh_token', $data["refresh_token"], true );
+		constant_contact()->connect->e_set( '_ctct_expires_in', sanitize_text_field( $data["expiry"] ) );
 
 		constant_contact_maybe_log_it( 'Refresh', 'Refreshed the token.' );
 
-		return $this->exec( $url, $options );
+		return true;
+
 	}
 
-
-	private function exec( $url, $options ): bool {
-		$response = wp_safe_remote_post( $url, $options );
-
-		$this->last_error  = '';
-		$this->status_code = 0;
-
-		if ( ! is_wp_error( $response ) ) {
-
-			$data = json_decode( $response['body'], true );
-
-			// check if the body contains error
-			if ( isset( $data['error'] ) ) {
-				$this->last_error = $data['error'] . ': ' . ( $data['error_description'] ?? 'Undefined' );
-			}
-
-			constant_contact()->connect->e_set( 'ctct_access_token', $data['access_token'] );
-			constant_contact()->connect->e_set( 'ctct_refresh_token', $data['refresh_token'] );
-			constant_contact()->connect->e_set( '_ctct_expires_in', (string) $data['expires_in'] );
-
-			$this->access_token  = $data['access_token'] ?? '';
-			$this->refresh_token = $data['refresh_token'] ?? '';
-			$this->expires_in    = $data['expires_in'] ?? '';
-
-			return isset( $data['access_token'], $data['refresh_token'] );
-		}
-
-		$this->status_code = $response['response']['code'];
-		$this->last_error  = $response['response']['message'];
-
-		return false;
-	}
 }
 
 /**

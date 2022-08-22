@@ -182,8 +182,11 @@ class ConstantContact_Connect {
 							try {
 								$account = (object) constant_contact()->api->get_account_info( $token );
 
-								if ( ! is_wp_error( $account ) && $account ) {
+								if ( ! is_wp_error( $account ) && ! isset( $account->errors ) ) {
 									echo esc_html( $account->first_name . ' ' . $account->last_name );
+								} else {
+									echo "Error while fetching account details.";
+									constant_contact_maybe_log_it( 'Account Error: ', "Error while fetching account details. Check your internet connection maybe?" );	
 								}
 							} catch ( Exception $ex ) {
 								constant_contact_maybe_log_it( 'Account info', 'There was an issue with retrieving connected account information. Please try again' );
@@ -198,8 +201,10 @@ class ConstantContact_Connect {
 						</p>
 						<p>
 							<?php
-							if ( $account ) {
+							if ( ! isset( $account->errors ) ) {
 								echo '<a href="mailto:' . esc_html( $account->contact_email ) . '">' . esc_html( $account->contact_email ) . '</a>';
+							} else {
+								echo "Error while fetching account details.";
 							}
 							?>
 						</p>
