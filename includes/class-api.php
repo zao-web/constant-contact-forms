@@ -121,7 +121,7 @@ class ConstantContact_API {
 	public function get_api_token() {
 
 		$url = constant_contact()->connect->get_api_token();
-				
+
 		return $url;
 	}
 
@@ -1071,39 +1071,39 @@ class ConstantContact_API {
 	 */
 	public function refresh_the_access_token(): bool {
 
-		
 		constant_contact_maybe_log_it( 'Refresh Token:', $this->refresh_token );
 		constant_contact_maybe_log_it( 'Access Token:', $this->access_token );
 
-		$url = constant_contact()->authserver->get_auth_server_link();
+		$url   = constant_contact()->authserver->get_auth_server_link();
 		$proof = esc_attr( wp_generate_password( 35, false ) );
 		// Create full request URL
 		$body = [
 			'refresh_token' => $this->refresh_token,
-			'proof'			=> $proof,
+			'proof'         => $proof,
 			'grant_type'    => 'refresh_token',
-			'site'			=> get_site_url()
+			'site'          => get_site_url(),
 		];
-		
-		$response = wp_remote_get( 
-						$url, array(
-							'body'    => $body,
-							'timeout' => 120, 
-						)
-					); 
+
+		$response = wp_remote_get(
+			$url,
+			[
+				'body'    => $body,
+				'timeout' => 120,
+			]
+		);
 
 		if ( ! is_wp_error( $response ) ) {
 			$data = json_decode( $response['body'], true );
 		}
 
-		if ( empty( $data )  ) {
-			constant_contact_maybe_log_it( 'Refresh Token Error:', "Problem getting response from middleware" );
+		if ( empty( $data ) ) {
+			constant_contact_maybe_log_it( 'Refresh Token Error:', 'Problem getting response from middleware' );
 			return false;
 		}
 
-		constant_contact()->connect->e_set( 'ctct_access_token', $data["token"], true );
-		constant_contact()->connect->e_set( 'ctct_refresh_token', $data["refresh_token"], true );
-		constant_contact()->connect->e_set( '_ctct_expires_in', sanitize_text_field( $data["expiry"] ) );
+		constant_contact()->connect->e_set( 'ctct_access_token', $data['token'], true );
+		constant_contact()->connect->e_set( 'ctct_refresh_token', $data['refresh_token'], true );
+		constant_contact()->connect->e_set( '_ctct_expires_in', sanitize_text_field( $data['expiry'] ) );
 
 		constant_contact_maybe_log_it( 'Refresh', 'Refreshed the token.' );
 

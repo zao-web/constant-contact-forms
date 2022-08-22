@@ -117,10 +117,6 @@ class ConstantContact_Middleware {
 		static $proof = null;
 
 		if ( null === $proof ) {
-			constant_contact_maybe_log_it(
-				'Middleware',
-				'Verification option proof was null'
-			);
 			$proof = esc_attr( wp_generate_password( 35, false ) );
 			update_option( 'ctct_connect_verification', $proof );
 		}
@@ -138,7 +134,10 @@ class ConstantContact_Middleware {
 	 * @return boolean Is valid?
 	 */
 	public function verify_and_save_access_token_return() {
-		$proof         = filter_input( INPUT_GET, 'proof', FILTER_SANITIZE_STRING );
+		$proof = filter_input( INPUT_GET, 'proof', FILTER_SANITIZE_STRING );
+
+		constant_contact_maybe_log_it( 'Proof Returned: ', $proof );
+
 		$token         = filter_input( INPUT_GET, 'token', FILTER_SANITIZE_STRING );
 		$key           = filter_input( INPUT_GET, 'key', FILTER_SANITIZE_STRING );
 		$token_expiry  = filter_input( INPUT_GET, 'token_expiry', FILTER_SANITIZE_STRING );
@@ -166,7 +165,7 @@ class ConstantContact_Middleware {
 		}
 
 		constant_contact_maybe_log_it( 'Authentication', 'Authorization verification succeeded.' );
-		
+
 		// securing the tokens
 		constant_contact()->connect->e_set( 'ctct_access_token', sanitize_text_field( $token ), true );
 		constant_contact()->connect->e_set( 'ctct_refresh_token', sanitize_text_field( $refresh_token ), true );
@@ -186,7 +185,7 @@ class ConstantContact_Middleware {
 	public function verify_proof( $proof ) {
 
 		$expected_proof = get_option( 'ctct_connect_verification' );
-
+		constant_contact_maybe_log_it( 'Proof Sent: ', $expected_proof );
 		delete_option( 'ctct_connect_verification' );
 
 		return ( $proof === $expected_proof );

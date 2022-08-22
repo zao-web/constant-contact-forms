@@ -185,8 +185,8 @@ class ConstantContact_Connect {
 								if ( ! is_wp_error( $account ) && ! isset( $account->errors ) ) {
 									echo esc_html( $account->first_name . ' ' . $account->last_name );
 								} else {
-									echo "Error while fetching account details.";
-									constant_contact_maybe_log_it( 'Account Error: ', "Error while fetching account details. Check your internet connection maybe?" );	
+									echo 'Error while fetching account details.';
+									constant_contact_maybe_log_it( 'Account Error: ', 'Error while fetching account details. Check your internet connection maybe?' );
 								}
 							} catch ( Exception $ex ) {
 								constant_contact_maybe_log_it( 'Account info', 'There was an issue with retrieving connected account information. Please try again' );
@@ -204,7 +204,7 @@ class ConstantContact_Connect {
 							if ( ! isset( $account->errors ) ) {
 								echo '<a href="mailto:' . esc_html( $account->contact_email ) . '">' . esc_html( $account->contact_email ) . '</a>';
 							} else {
-								echo "Error while fetching account details.";
+								echo 'Error while fetching account details.';
 							}
 							?>
 						</p>
@@ -353,7 +353,7 @@ class ConstantContact_Connect {
 			delete_option( 'ctct_refresh_token' );
 			delete_option( '_ctct_expires_in' );
 
-			wp_clear_scheduled_hook('refresh_token_job');
+			wp_clear_scheduled_hook( 'refresh_token_job' );
 
 			$saved_options = get_option( 'ctct_options_settings' );
 			if ( isset( $saved_options['_ctct_disable_email_notifications'] ) ) {
@@ -464,7 +464,7 @@ class ConstantContact_Connect {
 
 		if ( $legacy ) {
 			$this->e_set( 'ctct_access_token', $legacy, true );
-			
+
 			delete_option( '_ctct_token' );
 			delete_option( 'ctct_token' );
 		}
