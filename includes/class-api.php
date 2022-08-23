@@ -86,7 +86,7 @@ class ConstantContact_API {
 				'cron_schedules',
 				function ( $schedules ) {
 					$schedules['pkce_expiry'] = [
-						'interval' => $this->expires_in - 86100, // refreshing token before 1 hour of expiry
+						'interval' => $this->expires_in - ( $this->expires_in - 3600 ), // refreshing token before 1 hour of expiry
 						'display'  => __( 'Token Expiry' ),
 					];
 					return $schedules;
