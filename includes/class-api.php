@@ -77,7 +77,7 @@ class ConstantContact_API {
 		$this->expires_in   = (int) constant_contact()->connect->e_get( '_ctct_expires_in' );
 		$this->access_token = constant_contact()->connect->e_get( 'ctct_access_token' );
 
-		if ( ! $this->check_authorization() ) {
+		if ( ! $this->check_authorization() && $this->access_token ) {
 			if ( $this->refresh_the_access_token() ) {
 				constant_contact_maybe_log_it( 'AccessToken', 'Successfully exchanged!' );
 			}
