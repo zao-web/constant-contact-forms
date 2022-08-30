@@ -47,7 +47,10 @@ class ConstantContact_Client {
 	public function __construct( $access_token ) {
 		$this->base_args['authorization'] = 'Bearer ' . $access_token;
 	}
-
+	
+	public function get_user_privileges() {
+		return $this->get( 'account/user/privileges', $this->base_args );
+	}
 	public function get_account_info() {
 		return $this->get( 'account/summary', $this->base_args );
 	}
