@@ -38,8 +38,8 @@ class ConstantContact_API {
 	 * @since 1.3.0
 	 * @var bool
 	 */
-	protected $access_token  = false;
-	protected $expires_in    = false;
+	protected $access_token = false;
+	protected $expires_in   = false;
 
 	private string $last_error = '';
 	private string $body       = '';
@@ -74,8 +74,8 @@ class ConstantContact_API {
 
 		$this->this_user_id = get_current_user_id();
 
-		$this->expires_in    = (int) constant_contact()->connect->e_get( '_ctct_expires_in' );
-		$this->access_token  = constant_contact()->connect->e_get( 'ctct_access_token' );
+		$this->expires_in   = (int) constant_contact()->connect->e_get( '_ctct_expires_in' );
+		$this->access_token = constant_contact()->connect->e_get( 'ctct_access_token' );
 
 		if ( ! $this->check_authorization() ) {
 			if ( $this->refresh_the_access_token() ) {
@@ -115,7 +115,6 @@ class ConstantContact_API {
 	 * Checks if the user have privileges
 	 *
 	 * @since 1.0.0
-	 *
 	 */
 	public function check_authorization() {
 
@@ -1063,16 +1062,16 @@ class ConstantContact_API {
 	 */
 	public function refresh_the_access_token(): bool {
 
-		$this->access_token  = constant_contact()->connect->e_get( 'ctct_access_token' );
+		$this->access_token = constant_contact()->connect->e_get( 'ctct_access_token' );
 		constant_contact_maybe_log_it( 'Access Token:', $this->access_token );
 
 		$url   = constant_contact()->authserver->get_auth_server_link();
 		$proof = esc_attr( wp_generate_password( 35, false ) );
 		// Create full request URL
 		$body = [
-			'proof'         => $proof,
-			'type'    		=> 'refresh_the_accesstoken',
-			'site'          => get_site_url(),
+			'proof' => $proof,
+			'type'  => 'refresh_the_accesstoken',
+			'site'  => get_site_url(),
 		];
 
 		$response = wp_remote_get(
@@ -1093,9 +1092,9 @@ class ConstantContact_API {
 		}
 
 		constant_contact()->connect->e_set( 'ctct_access_token', $data['token'], true );
-		
+
 		constant_contact_maybe_log_it( 'Refresh', 'Refreshed the token.' );
-		$this->access_token  = constant_contact()->connect->e_get( 'ctct_access_token' );
+		$this->access_token = constant_contact()->connect->e_get( 'ctct_access_token' );
 		constant_contact_maybe_log_it( 'New Access Token:', $this->access_token );
 
 		return true;
