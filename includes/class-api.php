@@ -150,7 +150,7 @@ class ConstantContact_API {
 		 *
 		 * @param bool $value Whether or not to bypass.
 		 */
-		$bypass_acct_cache = apply_filters( 'constant_contact_bypass_acct_info_cache', true );
+		$bypass_acct_cache = apply_filters( 'constant_contact_bypass_acct_info_cache', false );
 
 		if ( false === $acct_data || $bypass_acct_cache ) {
 
@@ -906,6 +906,8 @@ class ConstantContact_API {
 
 		if ( null === $token ) {
 			$token = get_option( 'ctct_access_token', false ) ? true : false;
+
+			// echo( get_option( 'ctct_access_token' ) ); die;
 		}
 
 		return $token;

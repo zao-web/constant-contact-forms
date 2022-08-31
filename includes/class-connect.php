@@ -351,6 +351,7 @@ class ConstantContact_Connect {
 
 			delete_option( 'ctct_access_token' );
 			delete_option( '_ctct_expires_in' );
+			delete_transient('constant_contact_acct_info');
 
 			$saved_options = get_option( 'ctct_options_settings' );
 			if ( isset( $saved_options['_ctct_disable_email_notifications'] ) ) {
