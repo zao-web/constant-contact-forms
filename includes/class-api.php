@@ -1063,7 +1063,9 @@ class ConstantContact_API {
 	public function refresh_the_access_token(): bool {
 
 		$this->access_token = constant_contact()->connect->e_get( 'ctct_access_token' );
-		constant_contact_maybe_log_it( 'Access Token:', $this->access_token );
+		
+		constant_contact_maybe_log_it( 'Refresh', 'Refreshing the Access token.' );
+		constant_contact_maybe_log_it( 'Old Access Token:', $this->access_token );
 
 		$url   = constant_contact()->authserver->get_auth_server_link();
 		$proof = esc_attr( wp_generate_password( 35, false ) );
