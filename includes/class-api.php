@@ -38,8 +38,9 @@ class ConstantContact_API {
 	 * @since 1.3.0
 	 * @var bool
 	 */
-	protected $access_token = false;
-	protected $expires_in   = false;
+	protected $access_token  = false;
+	protected $refresh_token = false;
+	protected $expires_in    = false;
 
 	private string $last_error = '';
 	private string $body       = '';
@@ -64,6 +65,7 @@ class ConstantContact_API {
 		$this->plugin = $plugin;
 
 		add_action( 'init', [ $this, 'cct_init' ] );
+		add_action( 'refresh_token_job', [ $this, 'refresh_the_access_token' ] );
 	}
 
 	/**
@@ -72,17 +74,28 @@ class ConstantContact_API {
 	 */
 	public function cct_init() {
 
-		$this->this_user_id = get_current_user_id();
+		$this->this_user_id  = get_current_user_id();
+		$this->expires_in    = (int) constant_contact()->connect->e_get( '_ctct_expires_in' );
+		$this->refresh_token = constant_contact()->connect->e_get( 'ctct_refresh_token' );
+		$this->access_token  = constant_contact()->connect->e_get( 'ctct_access_token' );
 
-		$this->expires_in   = (int) constant_contact()->connect->e_get( '_ctct_expires_in' );
-		$this->access_token = constant_contact()->connect->e_get( 'ctct_access_token' );
+		// custom scheduling based on the expiry time returned with access token
+		if ( ! empty( $this->expires_in ) ) {
+			add_filter(
+				'cron_schedules',
+				function ( $schedules ) {
+					$schedules['pkce_expiry'] = [
+						'interval' => $this->expires_in - 3600, // refreshing token before 1 hour of expiry
+						'display'  => __( 'Token Expiry' ),
+					];
+					return $schedules;
+				}
+			);
 
-		if ( ! $this->check_authorization() && $this->access_token ) {
-			if ( $this->refresh_the_access_token() ) {
-				constant_contact_maybe_log_it( 'AccessToken', 'Successfully exchanged!' );
+			if ( ! wp_next_scheduled( 'refresh_token_job' ) ) { // if it hasn't been scheduled
+				wp_schedule_event( time(), 'pkce_expiry', 'refresh_token_job' ); // schedule it
 			}
 		}
-
 	}
 
 	/**
@@ -112,19 +125,15 @@ class ConstantContact_API {
 	}
 
 	/**
-	 * Checks if the user have privileges
+	 * Getter method for Refresh API token.
 	 *
 	 * @since 1.0.0
+	 *
+	 * @param string $type api key type.
+	 * @return string Refresh Token.
 	 */
-	public function check_authorization() {
-
-		$privileges = $this->cc()->get_user_privileges();
-
-		if ( isset( $privileges['error_key'] ) && 'unauthorized' === $privileges['error_key'] ) {
-			return false;
-		}
-
-		return true;
+	public function get_refresh_token() {
+		return $this->refresh_token;
 	}
 
 
@@ -906,8 +915,6 @@ class ConstantContact_API {
 
 		if ( null === $token ) {
 			$token = get_option( 'ctct_access_token', false ) ? true : false;
-
-			// echo( get_option( 'ctct_access_token' ) ); die;
 		}
 
 		return $token;
@@ -1073,22 +1080,27 @@ class ConstantContact_API {
 		$proof = esc_attr( wp_generate_password( 35, false ) );
 		// Create full request URL
 		$body = [
-			'proof' => $proof,
-			'type'  => 'refresh_the_accesstoken',
-			'site'  => get_site_url(),
+			'refresh_token' => $this->refresh_token,
+			'proof'         => $proof,
+			'grant_type'    => 'refresh_token',
+			'site'          => get_site_url(),
 		];
 
 		$response = wp_remote_get(
 			$url,
 			[
 				'body'    => $body,
-				'timeout' => 20,
+				'timeout' => 120,
 			]
 		);
+
+		
 
 		if ( ! is_wp_error( $response ) ) {
 			$data = json_decode( $response['body'], true );
 		}
+
+		constant_contact_maybe_log_it( 'Access Response:', print_r( $data['refresh_token'] ) );
 
 		if ( empty( $data ) ) {
 			constant_contact_maybe_log_it( 'Refresh Token Error:', 'Problem getting response from middleware' );
@@ -1096,6 +1108,8 @@ class ConstantContact_API {
 		}
 
 		constant_contact()->connect->e_set( 'ctct_access_token', $data['token'], true );
+		constant_contact()->connect->e_set( 'ctct_refresh_token', $data['refresh_token'], true );
+		constant_contact()->connect->e_set( '_ctct_expires_in', sanitize_text_field( $data['expiry'] ) );
 
 		constant_contact_maybe_log_it( 'Refresh', 'Refreshed the token.' );
 		$this->access_token = constant_contact()->connect->e_get( 'ctct_access_token' );

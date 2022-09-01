@@ -350,8 +350,10 @@ class ConstantContact_Connect {
 		if ( wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['ctct-admin-disconnect'] ) ), 'ctct-admin-disconnect' ) ) {
 
 			delete_option( 'ctct_access_token' );
+			delete_option( 'ctct_refresh_token' );
 			delete_option( '_ctct_expires_in' );
 			delete_transient('constant_contact_acct_info');
+			wp_clear_scheduled_hook( 'refresh_token_job' );
 
 			$saved_options = get_option( 'ctct_options_settings' );
 			if ( isset( $saved_options['_ctct_disable_email_notifications'] ) ) {
