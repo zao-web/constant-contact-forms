@@ -1106,10 +1106,11 @@ class ConstantContact_API {
 			constant_contact_maybe_log_it( 'Refresh Token Error:', 'Problem getting response from middleware' );
 			return false;
 		}
-
-		constant_contact()->connect->e_set( 'ctct_access_token', $data['token'], true );
-		constant_contact()->connect->e_set( 'ctct_refresh_token', $data['refresh_token'], true );
-		constant_contact()->connect->e_set( '_ctct_expires_in', sanitize_text_field( $data['expiry'] ) );
+		if ( ! empty( $data['token'] ) && ! empty( $data['refresh_token'] ) && ! empty( $data['expiry'] ) ) {
+			constant_contact()->connect->e_set( 'ctct_access_token', $data['token'], true );
+			constant_contact()->connect->e_set( 'ctct_refresh_token', $data['refresh_token'], true );
+			constant_contact()->connect->e_set( '_ctct_expires_in', sanitize_text_field( $data['expiry'] ) );
+		}
 
 		constant_contact_maybe_log_it( 'Refresh', 'Refreshed the token.' );
 		$this->access_token = constant_contact()->connect->e_get( 'ctct_access_token' );
